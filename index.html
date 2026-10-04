@@ -1,1 +1,268 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CampusShare – Borrow, Rent, Share</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#1f5eff;--navy:#0b2a6f;--bg:#eef3ff;--card:#fff;--ink:#14213d;--mute:#6b7691;--line:#e1e8f7;--ok:#12a150;--warn:#e08a00;--bad:#d7263d}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#dfe7fa;color:var(--ink);min-height:100vh}
+#app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;padding-bottom:84px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0}
+:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
+.top{background:var(--blue);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:18px}
+.top small{font-weight:500;font-size:12px;opacity:.85}
+.pad{padding:14px 16px}
+.search{display:flex;gap:8px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.search input{border:0;outline:0;flex:1;background:none}
+.cats{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;margin-bottom:8px}
+.cat{flex:0 0 auto;text-align:center;background:none;font-size:12px;font-weight:600;color:var(--mute)}
+.cat span{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:#fff;border:2px solid var(--line);font-size:22px;margin:0 auto 4px}
+.cat.on span{border-color:var(--blue);background:#e6eeff}.cat.on{color:var(--blue)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+h2{font-size:17px;font-weight:800}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.item{background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--line);text-align:left;position:relative}
+.thumb{height:104px;display:grid;place-items:center;font-size:48px;background-size:cover;background-position:center}
+.item .b{padding:8px 10px 10px;font-size:12px}
+.item b{display:block;font-size:13px;margin-bottom:3px}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:#e3edff;color:var(--blue)}
+.tag.borrow{background:#e0f6ea;color:var(--ok)}
+.heart{position:absolute;top:6px;right:6px;background:#fff;border-radius:50%;width:28px;height:28px;font-size:14px;box-shadow:0 1px 4px #0002}
+.muted{color:var(--mute);font-size:12px}
+.btn{background:var(--blue);color:#fff;font-weight:700;border-radius:12px;padding:13px 16px;width:100%}
+.btn.ghost{background:#fff;color:var(--blue);border:1.5px solid var(--blue)}
+.btn.sm{padding:8px 12px;width:auto;font-size:13px;border-radius:9px}
+.btn.bad{background:var(--bad)}.btn.ok{background:var(--ok)}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+label{display:block;font-size:13px;font-weight:700;margin:12px 0 5px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.seg{display:flex;gap:8px}.seg button{flex:1;padding:10px;border-radius:10px;background:#fff;border:1.5px solid var(--line);font-weight:600}
+.seg button.on{border-color:var(--blue);background:#e6eeff;color:var(--blue)}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom,0px))}
+nav button{background:none;font-size:11px;font-weight:600;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:2px;min-width:64px}
+nav button i{font-style:normal;font-size:20px}nav button.on{color:var(--blue)}
+.fab{background:var(--blue)!important;color:#fff!important;width:52px;height:52px;border-radius:50%;margin-top:-26px;font-size:28px;justify-content:center;box-shadow:0 4px 12px #1f5eff66}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px}
+.Pending{background:#fff1d6;color:var(--warn)}.Approved{background:#dff5e8;color:var(--ok)}.Completed{background:#e3e8f5;color:var(--mute)}.Rejected{background:#fde3e6;color:var(--bad)}
+.tabs{display:flex;border-bottom:2px solid var(--line);margin-bottom:12px}
+.tabs button{flex:1;background:none;padding:10px;font-weight:700;color:var(--mute);border-bottom:3px solid transparent;margin-bottom:-2px}
+.tabs button.on{color:var(--blue);border-color:var(--blue)}
+.pills{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px}
+.pills button{flex:0 0 auto;padding:6px 12px;border-radius:99px;background:#fff;border:1px solid var(--line);font-size:12px;font-weight:600}
+.pills button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.sheet-bg{position:fixed;inset:0;background:#0b1b4a88;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:480px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:16px}
+.hero{height:200px;border-radius:14px;display:grid;place-items:center;font-size:90px;background-size:cover;background-position:center;margin-bottom:12px}
+.kv{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.kv span:first-child{color:var(--mute)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;gap:6px;margin:12px 0}
+.stats b{display:block;font-size:20px}
+.code{font-size:28px;letter-spacing:6px;font-weight:800;color:var(--navy);text-align:center;background:#e6eeff;border-radius:12px;padding:10px;margin:8px 0}
+.banner{background:#fff1d6;color:#7a4a00;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:600;margin-bottom:12px}
+.msgs{display:flex;flex-direction:column;gap:6px;margin:10px 0;max-height:260px;overflow:auto}
+.m{padding:8px 12px;border-radius:14px;max-width:80%;font-size:14px;background:#fff;align-self:flex-start}
+.m.me{background:var(--blue);color:#fff;align-self:flex-end}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:99px;font-size:13px;z-index:40;font-weight:600}
+.login{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:28px 24px;text-align:center;background:linear-gradient(#e6eeff,#fff)}
+.login h1{font-size:36px;font-weight:800;color:var(--blue);letter-spacing:-1px}
+.empty{text-align:center;padding:36px 12px;color:var(--mute);font-size:14px}
+.preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.preview img{width:64px;height:64px;object-fit:cover;border-radius:10px}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .25s ease-out}@keyframes up{from{transform:translateY(40px);opacity:.4}}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const day=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+const today=()=>day(0);
+const fmt=d=>new Date(d+'T00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+const days=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5)+1;
+const CATS=[['All','✨'],['Electronics','💻'],['Books','📚'],['Tools','🔧'],['Hostel','🛏️'],['Sports','🏀']];
+const ICON={Electronics:'💻',Books:'📚',Tools:'🔧',Hostel:'🛏️',Sports:'🏸'};
+const KEY='campusshare_v1';
+
+function seed(){return{
+ user:null,saved:[],msgs:{},ratings:{},flags:{},reqs:[],
+ items:[
+  {id:1,name:'Laptop (i5)',cat:'Electronics',cond:'Good',type:'Rent',price:200,unit:'day',from:day(0),to:day(20),loc:'Hostel B, RK Valley',km:.5,desc:'8GB RAM, 512GB SSD. Charger included.',owner:'Ananya R.',email:'ananya@college.edu.in',img:''},
+  {id:2,name:'Engineering Books Set',cat:'Books',cond:'Good',type:'Borrow',price:0,unit:'day',from:day(0),to:day(60),loc:'Library Block',km:.3,desc:'Maths, Physics, BEE and Graphics – 1st year set.',owner:'Karthik S.',email:'karthik@college.edu.in',img:''},
+  {id:3,name:'Scientific Calculator',cat:'Electronics',cond:'Good',type:'Rent',price:50,unit:'day',from:day(8),to:day(30),loc:'Hostel A',km:.8,desc:'Casio fx-991EX. Works perfectly. Useful for engineering and competitive exams.',owner:'Final Year Student',email:'final@college.edu.in',img:''},
+  {id:4,name:'Badminton Racquet',cat:'Sports',cond:'Used',type:'Borrow',price:0,unit:'day',from:day(0),to:day(45),loc:'Sports Complex',km:1.2,desc:'Yonex racquet with cover. Return after use.',owner:'Meera P.',email:'meera@college.edu.in',img:''},
+  {id:5,name:'Cycle (Hero, 21 gear)',cat:'Tools',cond:'Good',type:'Rent',price:30,unit:'day',from:day(0),to:day(40),loc:'Main Gate',km:.6,desc:'Great for getting around campus. Helmet available.',owner:'Rahul V.',email:'rahul@college.edu.in',img:''}
+ ]}}
+let S;try{S=JSON.parse(localStorage.getItem(KEY))||seed()}catch(e){S=seed()}
+const UI={view:'home',cat:'All',q:'',sort:'km',sel:null,tab:'sent',flt:'All',photos:[],ptype:'Rent',pcond:'Good',own:'items'};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2200)};
+const item=id=>S.items.find(i=>i.id==id);
+const me=()=>S.user.email;
+const avg=email=>{const r=S.ratings[email]||[];return r.length?(r.reduce((a,b)=>a+b,0)/r.length).toFixed(1):'New'};
+const price=i=>i.type==='Borrow'?'Free':`₹${i.price}/${i.unit}`;
+const thumb=(i,cls='thumb')=>`<div class="${cls}" style="${i.img?`background-image:url(${i.img})`:'background:#dbe6ff'}">${i.img?'':ICON[i.cat]||'📦'}</div>`;
+
+/* ---------- Auth ---------- */
+function login(email){
+ email=(email||'').trim().toLowerCase();
+ if(!/^[^@\s]+@[^@\s]+\.(edu|ac\.[a-z]{2}|edu\.[a-z]{2})$/.test(email)){toast('Use your college email (.edu / .ac.in / .edu.in)');return}
+ const name=email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+ S.user={email,name,verified:true};save();UI.view='home';render();
+}
+function logout(){S.user=null;save();render()}
+
+/* ---------- Views ---------- */
+function render(){
+ const app=$('#app');
+ if(!S.user){app.innerHTML=loginView();return}
+ const v={home:homeView,post:postView,reqs:reqView,me:meView}[UI.view]();
+ app.innerHTML=v+nav()+(UI.sel?sheet():'');
+ if(UI.view==='post')Object.keys(draft).forEach(k=>{const e=$('#'+k);if(e)e.value=draft[k]});
+}
+function loginView(){return`<div class="login"><div style="font-size:54px">🎓</div><h1>CampusShare</h1><p style="font-weight:700;margin:4px 0 6px">Borrow · Rent · Share</p>
+<p class="muted" style="margin-bottom:24px">A student community to share, rent and borrow useful items within campus.</p>
+<label for="em" style="text-align:left">College email</label><input id="em" type="email" placeholder="you@college.edu.in" onkeydown="if(event.key==='Enter')login(this.value)">
+<button class="btn" style="margin-top:12px" onclick="login($('#em').value)">Continue with college email</button>
+<button class="btn ghost" style="margin-top:10px" onclick="login('student@college.edu.in')">Try demo account</button>
+<p class="muted" style="margin-top:18px">🛡️ College students only. Your college email is checked before you can post or request.</p></div>`}
+
+function nav(){const b=(v,i,l)=>`<button class="${UI.view===v?'on':''}" onclick="UI.view='${v}';render()"><i>${i}</i>${l}</button>`;
+ return`<nav>${b('home','🏠','Home')}<button class="fab" aria-label="Post an item" onclick="UI.view='post';UI.photos=[];draft={};render()">+</button>${b('reqs','📋','My requests')}${b('me','👤','Profile')}</nav>`}
+
+function homeView(){
+ let list=S.items.filter(i=>(UI.cat==='All'||i.cat===UI.cat)&&(i.name+i.desc+i.cat).toLowerCase().includes(UI.q.toLowerCase()));
+ list.sort((a,b)=>UI.sort==='km'?a.km-b.km:UI.sort==='price'?a.price-b.price:b.id-a.id);
+ const overdue=S.reqs.filter(r=>r.borrower===me()&&r.status==='Approved'&&r.end<today());
+ return`<div class="top"><div>CampusShare<br><small>📍 Near RK Valley, Pulivendula</small></div><span>🔔</span></div><div class="pad">
+ ${overdue.map(r=>`<div class="banner">⏰ Return reminder: "${esc(item(r.itemId)?.name)}" was due ${fmt(r.end)}.</div>`).join('')}
+ <div class="search">🔍<input aria-label="Search" placeholder="Search books, laptop, cycle…" value="${esc(UI.q)}" oninput="UI.q=this.value;renderList()"></div>
+ <div class="cats">${CATS.map(([c,e])=>`<button class="cat ${UI.cat===c?'on':''}" onclick="UI.cat='${c}';render()"><span>${e}</span>${c}</button>`).join('')}</div>
+ <div class="row"><h2>Nearby items</h2><select aria-label="Sort" style="width:auto;padding:6px" onchange="UI.sort=this.value;render()">
+ <option value="km" ${UI.sort==='km'?'selected':''}>Nearest</option><option value="price" ${UI.sort==='price'?'selected':''}>Lowest price</option><option value="new" ${UI.sort==='new'?'selected':''}>Newest</option></select></div>
+ <div class="grid" id="list">${cards(list)}</div></div>`}
+function cards(list){return list.length?list.map(i=>`<div class="item"><button style="background:none;width:100%;text-align:left" onclick="UI.sel=${i.id};render()">${thumb(i)}<div class="b"><b>${esc(i.name)}</b><span class="tag ${i.type==='Borrow'?'borrow':''}">${i.type}</span> <b style="display:inline">${i.type==='Rent'?'₹'+i.price+'/'+i.unit:''}</b><div class="muted" style="margin-top:4px">📍 ${i.km} km · ★ ${avg(i.email)}</div></div></button>
+ <button class="heart" aria-label="Save item" onclick="toggleSave(${i.id})">${S.saved.includes(i.id)?'❤️':'🤍'}</button></div>`).join(''):`<div class="empty" style="grid-column:1/-1">No items match. Try another category or post one yourself.</div>`}
+function renderList(){const l=S.items.filter(i=>(UI.cat==='All'||i.cat===UI.cat)&&(i.name+i.desc+i.cat).toLowerCase().includes(UI.q.toLowerCase()));$('#list').innerHTML=cards(l)}
+function toggleSave(id){S.saved=S.saved.includes(id)?S.saved.filter(x=>x!==id):[...S.saved,id];save();render()}
+
+function sheet(){
+ const i=item(UI.sel);if(!i)return'';
+ const mine=i.email===me();
+ const busy=S.reqs.filter(r=>r.itemId===i.id&&r.status==='Approved').map(r=>`${fmt(r.start)}–${fmt(r.end)}`);
+ const minD=i.from>today()?i.from:today();
+ return`<div class="sheet-bg" onclick="if(event.target===this){UI.sel=null;render()}"><div class="sheet" role="dialog" aria-label="Item details">
+ <div class="row" style="margin-bottom:10px"><button class="btn ghost sm" onclick="UI.sel=null;render()">← Back</button><button class="btn ghost sm" onclick="report(${i.id})">🚩 Report</button></div>
+ ${thumb(i,'hero')}
+ <div class="row"><h2 style="font-size:20px">${esc(i.name)}</h2><b>★ ${avg(i.email)}</b></div>
+ <div style="margin:6px 0 10px"><b style="font-size:20px">${price(i)}</b> <span class="tag ${i.type==='Borrow'?'borrow':''}">${i.type==='Borrow'?'Free to borrow':'For rent'}</span></div>
+ <div class="card"><div class="kv"><span>Owner</span><span>${esc(i.owner)} ✔ Verified student (★ ${avg(i.email)})</span></div>
+ <div class="kv"><span>Condition</span><span>${i.cond}</span></div><div class="kv"><span>Category</span><span>${i.cat}</span></div>
+ <div class="kv"><span>Location</span><span>${esc(i.loc)} (${i.km} km)</span></div><div class="kv"><span>Available</span><span>${fmt(i.from)} – ${fmt(i.to)}</span></div>
+ ${busy.length?`<div class="kv"><span>Already booked</span><span>${busy.join(', ')}</span></div>`:''}</div>
+ <h2 style="font-size:15px">Description</h2><p class="muted" style="margin:4px 0 12px;font-size:14px">${esc(i.desc)||'No description.'}</p>
+ ${mine?`<p class="muted">This is your item.</p>`:`<div class="card"><b>Request this item</b><div class="row" style="gap:8px"><div style="flex:1"><label for="rs">From</label><input id="rs" type="date" min="${minD}" max="${i.to}" oninput="quote(${i.id})"></div><div style="flex:1"><label for="re">To</label><input id="re" type="date" min="${minD}" max="${i.to}" oninput="quote(${i.id})"></div></div>
+ <p id="quote" class="muted" style="margin-top:8px"></p><label for="rm">Message to owner (optional)</label><input id="rm" placeholder="Hi, I need this for my exam week"></div>
+ <div class="row"><button class="btn" onclick="sendReq(${i.id})">Request to ${i.type==='Rent'?'rent':'borrow'}</button></div>`}
+ </div></div>`}
+function quote(id){const i=item(id),a=$('#rs').value,b=$('#re').value;if(!a||!b){$('#quote').textContent='';return}
+ $('#quote').textContent=b<a?'End date must be after start date.':i.type==='Borrow'?`${days(a,b)} day(s) · Free`:`${days(a,b)} day(s) × ₹${i.price} = ₹${days(a,b)*i.price}`}
+function overlap(id,a,b){return S.reqs.some(r=>r.itemId===id&&r.status==='Approved'&&!(b<r.start||a>r.end))}
+function sendReq(id){
+ const i=item(id),a=$('#rs').value,b=$('#re').value;
+ if(!a||!b)return toast('Pick start and end dates');
+ if(b<a)return toast('End date must be after start date');
+ if(a<i.from||b>i.to)return toast('Outside the dates the owner is available');
+ if(overlap(id,a,b))return toast('Those dates are already booked');
+ if(S.reqs.some(r=>r.itemId===id&&r.borrower===me()&&r.status==='Pending'))return toast('You already have a pending request');
+ S.reqs.push({id:Date.now(),itemId:id,borrower:me(),borrowerName:S.user.name,owner:i.email,start:a,end:b,total:i.type==='Rent'?days(a,b)*i.price:0,status:'Pending',code:String(Math.floor(1e5+Math.random()*9e5)),rated:false});
+ const m=$('#rm').value.trim();if(m)S.msgs[S.reqs.at(-1).id]=[{from:me(),t:m}];
+ save();UI.sel=null;UI.view='reqs';UI.tab='sent';render();toast('Request sent to owner');
+}
+function report(id){const r=prompt('Why are you reporting this item? (e.g. fake, unsafe, inappropriate)');if(!r)return;S.flags[id]=(S.flags[id]||0)+1;save();toast('Thanks – our moderators will review it')}
+
+/* ---------- Post ---------- */
+function postView(){return`<div class="top"><span>Post an item</span><span></span></div><div class="pad">
+ <label for="pf">Photos (up to 3)</label><input id="pf" type="file" accept="image/*" multiple onchange="pickPhotos(this.files)">
+ <div class="preview">${UI.photos.map(p=>`<img src="${p}" alt="Item photo">`).join('')}</div>
+ <label for="pn">Item name *</label><input id="pn" placeholder="e.g. Laptop, Textbook, Cycle">
+ <label for="pc">Category *</label><select id="pc">${CATS.slice(1).map(c=>`<option>${c[0]}</option>`).join('')}</select>
+ <label>Condition *</label><div class="seg">${['New','Good','Used'].map(c=>`<button class="${UI.pcond===c?'on':''}" onclick="UI.pcond='${c}';keep();render()">${c}</button>`).join('')}</div>
+ <label>Share type *</label><div class="seg">${['Borrow','Rent'].map(c=>`<button class="${UI.ptype===c?'on':''}" onclick="UI.ptype='${c}';keep();render()">${c==='Rent'?'₹ Rent':'Borrow (free)'}</button>`).join('')}</div>
+ ${UI.ptype==='Rent'?`<div class="row" style="gap:8px"><div style="flex:2"><label for="pp">Price (₹)</label><input id="pp" type="number" min="1" placeholder="e.g. 100"></div><div style="flex:1"><label for="pu">Per</label><select id="pu"><option>day</option><option>week</option></select></div></div>`:''}
+ <div class="row" style="gap:8px"><div style="flex:1"><label for="pa">Available from *</label><input id="pa" type="date" min="${today()}"></div><div style="flex:1"><label for="pb">Available to *</label><input id="pb" type="date" min="${today()}"></div></div>
+ <label for="pl">Location *</label><input id="pl" placeholder="Hostel / Block / Area">
+ <label for="pd">Description</label><textarea id="pd" rows="3" placeholder="Add more details about your item…"></textarea>
+ <button class="btn" style="margin-top:16px" onclick="postItem()">Post item</button></div>`}
+let draft={};
+function keep(){['pn','pc','pp','pu','pa','pb','pl','pd'].forEach(k=>{const e=$('#'+k);if(e)draft[k]=e.value})}
+function pickPhotos(files){[...files].slice(0,3).forEach(f=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas'),s=Math.min(1,500/im.width);c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);UI.photos.push(c.toDataURL('image/jpeg',.7));keep();render()};im.src=r.result};r.readAsDataURL(f)})}
+function postItem(){
+ const g=k=>($('#'+k)?.value||'').trim();
+ const o={name:g('pn'),cat:g('pc'),from:g('pa'),to:g('pb'),loc:g('pl')};
+ if(!o.name||!o.from||!o.to||!o.loc)return toast('Fill in all required fields');
+ if(o.to<o.from)return toast('Available-to date must be after available-from');
+ const p=+g('pp');if(UI.ptype==='Rent'&&!(p>0))return toast('Enter a rental price');
+ S.items.unshift({id:Date.now(),...o,cond:UI.pcond,type:UI.ptype,price:UI.ptype==='Rent'?p:0,unit:g('pu')||'day',km:+(Math.random()*1.5+.1).toFixed(1),desc:g('pd'),owner:S.user.name,email:me(),img:UI.photos[0]||''});
+ save();UI.photos=[];draft={};UI.view='home';render();toast('Item posted 🎉');
+}
+
+/* ---------- Requests ---------- */
+function reqView(){
+ const sent=UI.tab==='sent';
+ let list=S.reqs.filter(r=>sent?r.borrower===me():r.owner===me()).sort((a,b)=>b.id-a.id);
+ if(UI.flt!=='All')list=list.filter(r=>r.status===UI.flt);
+ return`<div class="top"><span>My requests</span><span></span></div><div class="pad">
+ <div class="tabs"><button class="${sent?'on':''}" onclick="UI.tab='sent';UI.flt='All';render()">Sent by me</button><button class="${!sent?'on':''}" onclick="UI.tab='recv';UI.flt='All';render()">For my items</button></div>
+ <div class="pills">${['All','Pending','Approved','Completed','Rejected'].map(s=>`<button class="${UI.flt===s?'on':''}" onclick="UI.flt='${s}';render()">${s}</button>`).join('')}</div>
+ ${list.length?list.map(r=>reqCard(r,sent)).join(''):`<div class="empty">${sent?'You haven\'t requested anything yet. Browse items on Home.':'No requests for your items yet.'}</div>`}</div>`}
+function reqCard(r,sent){
+ const i=item(r.itemId)||{name:'(removed item)',cat:'',img:''};
+ const msgs=(S.msgs[r.id]||[]).length;
+ const th=`<div style="width:52px;height:52px;font-size:26px;border-radius:10px;display:grid;place-items:center;background:#dbe6ff center/cover;${i.img?`background-image:url(${i.img})`:''}">${i.img?'':ICON[i.cat]||'📦'}</div>`;
+ return`<div class="card"><div class="row" style="align-items:flex-start"><div style="display:flex;gap:10px">${th}
+ <div><b>${esc(i.name)}</b><div class="muted">${fmt(r.start)} – ${fmt(r.end)}${r.total?` · ₹${r.total}`:' · Free'}</div><div class="muted">${sent?'Owner: '+esc(i.owner||''):'From: '+esc(r.borrowerName)}</div></div></div><span class="chip ${r.status}">${r.status}</span></div>
+ ${r.status==='Approved'&&sent?`<p class="muted" style="margin-top:8px">Show this handover code to the owner when you collect the item:</p><div class="code">${r.code}</div>`:''}
+ <div class="row" style="margin-top:10px;justify-content:flex-start;flex-wrap:wrap">
+ <button class="btn ghost sm" onclick="chat(${r.id})">💬 Chat${msgs?` (${msgs})`:''}</button>
+ ${!sent&&r.status==='Pending'?`<button class="btn ok sm" onclick="setStatus(${r.id},'Approved')">Approve</button><button class="btn bad sm" onclick="setStatus(${r.id},'Rejected')">Reject</button>`:''}
+ ${!sent&&r.status==='Approved'?`<button class="btn sm" onclick="complete(${r.id})">Confirm handover</button>`:''}
+ ${sent&&r.status==='Pending'?`<button class="btn ghost sm" onclick="setStatus(${r.id},'Approved',true)">Demo: owner approves</button><button class="btn ghost sm" onclick="cancelReq(${r.id})">Cancel</button>`:''}
+ ${r.status==='Completed'&&!r.rated?`<button class="btn sm" onclick="rate(${r.id},${sent})">Rate ${sent?'owner':'borrower'}</button>`:''}
+ </div></div>`}
+function setStatus(id,s,demo){const r=S.reqs.find(x=>x.id===id);
+ if(s==='Approved'&&overlap(r.itemId,r.start,r.end))return toast('Dates clash with an approved booking');
+ r.status=s;save();render();toast(s==='Approved'?'Request approved':'Request rejected')}
+function cancelReq(id){S.reqs=S.reqs.filter(r=>r.id!==id);save();render()}
+function complete(id){const r=S.reqs.find(x=>x.id===id);const c=prompt('Enter the 6-digit handover code shown by the borrower');if(c===null)return;
+ if(c.trim()!==r.code)return toast('Wrong code. Ask the borrower to check again');r.status='Completed';save();render();toast('Handover confirmed ✔')}
+function rate(id,sent){const r=S.reqs.find(x=>x.id===id);const n=+prompt('Rate 1 to 5 stars');if(!(n>=1&&n<=5))return toast('Enter a number from 1 to 5');
+ const who=sent?r.owner:r.borrower;(S.ratings[who]=S.ratings[who]||[]).push(n);r.rated=true;save();render();toast('Thanks for rating')}
+function chat(id){const m=S.msgs[id]||[];const el=document.createElement('div');el.className='sheet-bg';el.id='chatbg';
+ el.onclick=e=>{if(e.target===el)el.remove()};
+ el.innerHTML=`<div class="sheet"><div class="row"><h2>Chat</h2><button class="btn ghost sm" onclick="$('#chatbg').remove()">Close</button></div><div class="msgs">${m.length?m.map(x=>`<div class="m ${x.from===me()?'me':''}">${esc(x.t)}</div>`).join(''):'<p class="muted">No messages yet. Say hello and agree on a meeting spot.</p>'}</div>
+ <div class="row"><input id="cm" placeholder="Type a message" onkeydown="if(event.key==='Enter')sendMsg(${id})"><button class="btn sm" onclick="sendMsg(${id})">Send</button></div></div>`;
+ document.body.appendChild(el)}
+function sendMsg(id){const v=$('#cm').value.trim();if(!v)return;(S.msgs[id]=S.msgs[id]||[]).push({from:me(),t:v});save();$('#chatbg').remove();chat(id);render()}
+
+/* ---------- Profile ---------- */
+function meView(){
+ const mine=S.items.filter(i=>i.email===me());
+ const done=S.reqs.filter(r=>r.status==='Completed'&&(r.owner===me()||r.borrower===me())).length;
+ const list=UI.own==='items'?mine:S.items.filter(i=>S.saved.includes(i.id));
+ return`<div class="top"><span>My profile</span><button style="background:none;color:#fff" onclick="logout()">Log out</button></div><div class="pad">
+ <div class="card"><div class="row" style="justify-content:flex-start;gap:14px"><div style="font-size:44px">🧑‍🎓</div><div><span class="tag">✔ Verified student</span><h2 style="margin-top:4px">${esc(S.user.name)}</h2><div class="muted">${esc(S.user.email)}</div></div></div>
+ <div class="stats"><div><b>${avg(me())}</b><span class="muted">Rating</span></div><div><b>${mine.length}</b><span class="muted">Items shared</span></div><div><b>${done}</b><span class="muted">Successful deals</span></div></div></div>
+ <div class="tabs"><button class="${UI.own==='items'?'on':''}" onclick="UI.own='items';render()">My items</button><button class="${UI.own==='saved'?'on':''}" onclick="UI.own='saved';render()">Saved</button></div>
+ ${list.length?list.map(i=>`<div class="card row"><button style="background:none;text-align:left;flex:1" onclick="UI.sel=${i.id};render()"><b>${esc(i.name)}</b><div class="muted">${i.type} · ${price(i)} · ${fmt(i.from)}–${fmt(i.to)}</div></button>${i.email===me()?`<button class="btn bad sm" onclick="del(${i.id})">Remove</button>`:''}</div>`).join(''):`<div class="empty">${UI.own==='items'?'You haven\'t posted anything yet. Tap + to share an unused item.':'No saved items. Tap the heart on any item.'}</div>`}
+ <button class="btn ghost" style="margin-top:14px" onclick="if(confirm('Reset all demo data?')){S=seed();save();render()}">Reset demo data</button></div>`}
+function del(id){if(!confirm('Remove this item?'))return;S.items=S.items.filter(i=>i.id!==id);save();render()}
+
+render();
+</script>
+</body>
+</html>
